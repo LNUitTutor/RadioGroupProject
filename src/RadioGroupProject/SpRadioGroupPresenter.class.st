@@ -7,9 +7,10 @@ Class {
 		'buttons',
 		'index',
 		'whenIndexChangedDo',
+		'whenColumnsChangedDo',
 		'isEvenEvent',
 		'display',
-		'columnLayout'
+		'columnCount'
 	],
 	#category : 'RadioGroupProject-Presenter',
 	#package : 'RadioGroupProject',
@@ -28,14 +29,40 @@ SpRadioGroupPresenter class >> title [
 
 { #category : 'as yet unclassified' }
 SpRadioGroupPresenter >> beDoubleColumn [
-columnLayout := #doubleColumnLayout.
-self layout: self defaultLayout 
+
+	columnCount = 2 ifTrue: [ ^ self ].
+	columnCount := 2.
+	self layout: (self conditionalLayout: [ self multipleColumnLayout ]).
+	self columnsChanged
+
+]
+
+{ #category : 'as yet unclassified' }
+SpRadioGroupPresenter >> beQuatroColumn [
+
+	columnCount = 4 ifTrue: [ ^ self ].
+	columnCount := 4.
+	self layout: (self conditionalLayout: [ self multipleColumnLayout ]).
+	self columnsChanged
 ]
 
 { #category : 'as yet unclassified' }
 SpRadioGroupPresenter >> beSingleColumn [
-columnLayout := #singleColumnLayout.
-self layout: self defaultLayout 
+
+	columnCount = 1 ifTrue: [ ^ self ].
+	columnCount := 1.
+	self layout: (self conditionalLayout: [ self singleColumnLayout ]).
+	self columnsChanged
+
+]
+
+{ #category : 'as yet unclassified' }
+SpRadioGroupPresenter >> beTripleColumn [
+
+	columnCount = 3 ifTrue: [ ^ self ].
+	columnCount := 3.
+	self layout: (self conditionalLayout: [ self multipleColumnLayout ]).
+	self columnsChanged
 ]
 
 { #category : 'private' }
@@ -46,6 +73,31 @@ SpRadioGroupPresenter >> buttonStateChanged [
 	isEvenEvent ifTrue: [
 		whenIndexChangedDo ifNotNil: [ whenIndexChangedDo value: index ] ].
 	isEvenEvent := isEvenEvent not
+]
+
+{ #category : 'accessing' }
+SpRadioGroupPresenter >> columnCount [
+
+	^ columnCount
+]
+
+{ #category : 'private' }
+SpRadioGroupPresenter >> columnsChanged [
+
+	whenColumnsChangedDo ifNotNil: [ whenColumnsChangedDo value: columnCount ]
+]
+
+{ #category : 'layout' }
+SpRadioGroupPresenter >> conditionalLayout: aBlock [
+
+	Transcript show: 'conditional layout'; cr.
+	self title = String empty
+		ifTrue: [ ^ aBlock value ]
+		ifFalse: [
+			^ SpBoxLayout newTopToBottom
+				  add: title expand: false;
+				  add: aBlock value;
+				  yourself ]
 ]
 
 { #category : 'initialization' }
@@ -61,13 +113,7 @@ buttons do: [ :btn | btn whenChangedDo: block ]
 SpRadioGroupPresenter >> defaultLayout [
 
 	Transcript show: 'default layout'; cr.
-	self title = String empty
-		ifTrue: [ ^ self perform: columnLayout ]
-		ifFalse: [
-			^ SpBoxLayout newTopToBottom
-				  add: title expand: false;
-				  add: (self perform: columnLayout);
-				  yourself ]
+	^ self conditionalLayout: [ self singleColumnLayout ]
 ]
 
 { #category : 'accessing' }
@@ -75,24 +121,6 @@ SpRadioGroupPresenter >> display: aBlock [
 
 	display := aBlock.
 	self updateLabels
-]
-
-{ #category : 'layout' }
-SpRadioGroupPresenter >> doubleColumnLayout [
-
-	| size hBoxLayout vBoxLayout hight |
-	Transcript show: 'double layout'; cr.
-	hBoxLayout := SpBoxLayout newLeftToRight.
-	size := buttons size.
-	hight := (size + 1) // 2.
-	vBoxLayout := SpBoxLayout newTopToBottom.
-	1 to: hight do: [ :i | vBoxLayout add: (buttons at: i) ].
-	hBoxLayout add: vBoxLayout.
-	vBoxLayout := SpBoxLayout newTopToBottom.
-	hight + 1 to: size do: [ :i | vBoxLayout add: (buttons at: i) ].
-	size odd ifTrue: [ vBoxLayout add: SpLabelPresenter new ].
-	hBoxLayout add: vBoxLayout.
-	^ hBoxLayout
 ]
 
 { #category : 'accessing' }
@@ -107,9 +135,9 @@ SpRadioGroupPresenter >> initialize [
 Transcript show: 'initialize'; cr.
 	index := 1.
 	isEvenEvent := false.
-	items := self class defaultItems.
+	items ifNil: [ items := self class defaultItems ].
 	display := [ :object | object asStringOrText ].
-	columnLayout := #singleColumnLayout.
+	columnCount := 1.
 
 super initialize.
 ]
@@ -129,16 +157,42 @@ SpRadioGroupPresenter >> itemSelected [
 	^ items at: index
 ]
 
-{ #category : 'accessing' }
-SpRadioGroupPresenter >> items: anOrderedCollection [
+{ #category : 'accessing - model' }
+SpRadioGroupPresenter >> items: aCollection [
 
 	| size |
 	size := items size.
-	items := anOrderedCollection.
-	size = anOrderedCollection size
+	items := aCollection asOrderedCollection.
+	size = aCollection size
 		ifTrue: [ self updateLabels ]
-		ifFalse: [ self updateButtons; connectPresenters.
-			self layout: self defaultLayout ]
+		ifFalse: [ self updateButtons; connectPresenters; updateCurrentLayout ]
+]
+
+{ #category : 'layout' }
+SpRadioGroupPresenter >> multipleColumnLayout [
+
+	| size hBoxLayout vBoxLayout high begin end |
+	Transcript show: 'multiple layout ', columnCount printString; cr.
+	hBoxLayout := SpBoxLayout newLeftToRight.
+	size := buttons size.
+	high := size + columnCount - 1 // columnCount.
+	begin := 1 - high.
+	end := 0.
+	columnCount timesRepeat: [
+		vBoxLayout := SpBoxLayout newTopToBottom.
+		begin := begin + high.
+		end := end + high.
+		begin to: (end min: size) do: [ :i | vBoxLayout add: (buttons at: i) ].
+		hBoxLayout add: vBoxLayout ].
+	end - size timesRepeat: [ vBoxLayout add: SpLabelPresenter new ].
+	^ hBoxLayout
+]
+
+{ #category : 'accessing - model' }
+SpRadioGroupPresenter >> setModelBeforeInitialization: aCollection [
+	Transcript show: 'set model before'; cr.
+   items := aCollection asOrderedCollection
+
 ]
 
 { #category : 'layout' }
@@ -177,13 +231,27 @@ SpRadioGroupPresenter >> updateButtons [
 ]
 
 { #category : 'private' }
+SpRadioGroupPresenter >> updateCurrentLayout [
+
+columnCount = 1
+	ifTrue: [ self layout: self defaultLayout ]
+	ifFalse: [ self layout: (self conditionalLayout: [ self multipleColumnLayout ]) ]
+]
+
+{ #category : 'private' }
 SpRadioGroupPresenter >> updateLabels [
 
 	buttons withIndexDo: [ :btn :ind |
 		btn label: (display value: (items at: ind)) ]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'api - events' }
+SpRadioGroupPresenter >> whenColumnsChangedDo: aBlock [
+
+	whenColumnsChangedDo := aBlock
+]
+
+{ #category : 'api - events' }
 SpRadioGroupPresenter >> whenIndexChangedDo: aBlock [
 
 	whenIndexChangedDo := aBlock

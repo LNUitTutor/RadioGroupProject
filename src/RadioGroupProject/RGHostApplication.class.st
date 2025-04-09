@@ -82,9 +82,10 @@ RGHostApplication >> defaultLayout [
 { #category : 'initialization' }
 RGHostApplication >> initializePresenters [
 
-	question1 := self instantiate: SpRadioGroupPresenter.
-	question2 := self instantiate: SpRadioGroupPresenter.
-	question3 := self instantiate: SpRadioGroupPresenter.
+	question1 := self instantiate: SpRadioGroupPresenter on: #( 13 5 100 1024 ).
+	question2 := self instantiate: SpRadioGroupPresenter on: #( 'Peace' 'Earth' 'Pharo' 'Mind' ).
+	question3 := self instantiate: SpRadioGroupPresenter 
+	                  on: { true . #(2 3 5 7 11) . Float pi . 'Hello, World!' }.
 	buttonCheck := self newButton.
 	buttonClear := self newButton.
 	buttonQuit := self newButton.
@@ -92,15 +93,12 @@ RGHostApplication >> initializePresenters [
 
 	question1
 		title: 'Check a number';
-		items: #( 13 5 100 1024 );
 		beDoubleColumn.
 	question2
 		title: 'Check a word';
-		items: #( 'Peace' 'Earth' 'Pharo' 'Mind' );
 		beDoubleColumn.
 	question3
 		title: 'Check an object';
-		items: { true . #(2 3 5 7 11) . Float pi . 'Hello, World!' };
 		beDoubleColumn.
 	buttonCheck label: 'Check'.
 	buttonClear label: 'Clear'.
