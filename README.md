@@ -25,8 +25,17 @@ I am a presener for reuse. I hold a title and a group of radio buttons. I can he
 - `itemSelected` returns the object that corresponds to the selected button
 - `columnCount`, `indexSelected`, `title` are simple getters
 
+### Loading and the instance creation
+To load the progect execute
+```Smalltalk
+Metacello new
+   baseline: 'RadioGroupProject';
+   repository: 'github://LNUitTutor/RadioGroupProject/src';
+   load
+```
+
 To create an instance use `SpRadioGroupPresenter class >> on: aCollection` or `SpPresenter >> instantiate: SpRadioGroupPresenter on: aCollection`. For example
-```language=Pharo
+```Smalltalk
  | group |
  group := (SpRadioGroupPresenter on: 'ABCDEFGH') title: 'Choose a letter'; beDoubleColumn.
  group open
