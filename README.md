@@ -3,15 +3,15 @@
 I am a presener for reuse. I hold a title and a group of radio buttons. I can help to create and to manage a group of <SpRadioButtonPresenter>s.
 
 ### Instance Variables
-   title:   `a SpLabelPresenter` holds the caption of the group
-	items:   `an OrderedCollection` of objects that are displayed as radio buttons
-	buttons: `an OrderedCollection` of radio buttons
-	display: `a BlockClosure` an unary block defines the way to display the items
-	columnCount: `an Integer` between 1 and 4 - the number of columns that the buttons are divided into
-	index:   `an Integer` between 1 and buttons size - the indes of the selected button
-	whenIndexChangedDo:   `a BlockClosure` an unary block - the event handler
-	whenColumnsChangedDo: `a BlockClosure` an unary block - the event handler
-	isEvenEvent: `a Boolean` helper variable
+* `title` - `a SpLabelPresenter` holds the caption of the group
+* `items` - `an OrderedCollection` of objects that are displayed as radio buttons
+* `buttons` - `an OrderedCollection` of radio buttons
+* `display` - `a BlockClosure` an unary block defines the way to display the items
+* `columnCount` - `an Integer` between 1 and 4 - the number of columns that the buttons are divided into
+* `index` - `an Integer` between 1 and buttons size - the indes of the selected button
+* `whenIndexChangedDo` - `a BlockClosure` an unary block - the event handler
+* `whenColumnsChangedDo` - `a BlockClosure` an unary block - the event handler
+* `isEvenEvent` - `a Boolean` helper variable
 
 ### Public API
 
