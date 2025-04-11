@@ -1,6 +1,6 @@
 # Class: SpRadioGroupPresenter
 
-I am a presener for reuse. I hold a title and a group of radio buttons. I can help to create and to manage a group of <SpRadioButtonPresenter>s.
+I am a presener for reuse. I hold a title and a group of radio buttons. I can help to create and to manage a group of `SpRadioButtonPresenter`s.
 
 ### Instance Variables
 * `title` - `a SpLabelPresenter` holds the caption of the group
