@@ -44,6 +44,7 @@ Class {
 		'index',
 		'whenIndexChangedDo',
 		'whenColumnsChangedDo',
+		'whenItemsChangedDo',
 		'isEvenEvent'
 	],
 	#category : 'RadioGroupProject-Presenter',
@@ -71,7 +72,8 @@ SpRadioGroupPresenter >> addItem: anObject [
 	self
 		updateButtons;
 		connectPresenters;
-		updateCurrentLayout
+		updateCurrentLayout;
+		itemsChanged
 ]
 
 { #category : 'api - customization' }
@@ -141,7 +143,7 @@ SpRadioGroupPresenter >> columnCount [
 
 { #category : 'private' }
 SpRadioGroupPresenter >> columnsChanged [
-	"Trigger the whenColumnsChangedDo evetn"
+	"Trigger the whenColumnsChangedDo event"
 
 	whenColumnsChangedDo ifNotNil: [ whenColumnsChangedDo value: columnCount ]
 ]
@@ -170,7 +172,11 @@ SpRadioGroupPresenter >> connectPresenters [
 { #category : 'layout' }
 SpRadioGroupPresenter >> defaultLayout [
 
-	^ self conditionalLayout: [ self singleColumnLayout ]
+   ^ SpBoxLayout newTopToBottom
+        add: title expand: false;
+        add: self singleColumnLayout;
+        yourself
+
 ]
 
 { #category : 'api - customization' }
@@ -224,7 +230,15 @@ SpRadioGroupPresenter >> items: aCollection [
 	items := aCollection asOrderedCollection.
 	size = aCollection size
 		ifTrue: [ self updateLabels ]
-		ifFalse: [ self updateButtons; connectPresenters; updateCurrentLayout ]
+		ifFalse: [ self updateButtons; connectPresenters; updateCurrentLayout ].
+	self itemsChanged
+]
+
+{ #category : 'private' }
+SpRadioGroupPresenter >> itemsChanged [
+	"Trigger the whenItemsChangedDo event"
+
+	whenItemsChangedDo ifNotNil: [ whenItemsChangedDo value ]
 ]
 
 { #category : 'layout' }
@@ -286,12 +300,11 @@ SpRadioGroupPresenter >> updateButtons [
 	"Build the collection of radio buttons accordingly to the items collection"
 
 	| firstButton |
-	firstButton := self newRadioButton label:
-		               (display value: items first).
+	firstButton := self newRadioButton.
 	buttons := OrderedCollection with: firstButton.
-	items allButFirstDo: [ :object |
-		buttons add: (self newRadioButton label: (display value: object)) ].
-	firstButton associatedRadioButtons: buttons allButFirst
+	items allButFirstDo: [ :object | buttons add: self newRadioButton ].
+	firstButton associatedRadioButtons: buttons allButFirst.
+	self updateLabels
 ]
 
 { #category : 'private' }
@@ -299,7 +312,7 @@ SpRadioGroupPresenter >> updateCurrentLayout [
 	"Helper method to refresh the layout"
 
 columnCount = 1
-	ifTrue: [ self layout: self defaultLayout ]
+	ifTrue: [ self layout: (self conditionalLayout: [ self singleColumnLayout ]) ]
 	ifFalse: [ self layout: (self conditionalLayout: [ self multipleColumnLayout ]) ]
 ]
 
@@ -323,4 +336,11 @@ SpRadioGroupPresenter >> whenIndexChangedDo: aBlock [
 	"Set the whenIndexChangedDo event handler"
 
 	whenIndexChangedDo := aBlock
+]
+
+{ #category : 'api - events' }
+SpRadioGroupPresenter >> whenItemsChangedDo: aBlock [
+	"Set the whenItemsChangedDo event handler"
+
+	whenItemsChangedDo := aBlock
 ]
