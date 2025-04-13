@@ -69,8 +69,9 @@ SpRadioGroupPresenter >> addItem: anObject [
 	"Add the item to the collection of objects that are displayed as radio buttons"
 
 	items add: anObject.
+	self updateButtons.
+	(buttons at: index) state: true.
 	self
-		updateButtons;
 		connectPresenters;
 		updateCurrentLayout;
 		itemsChanged
@@ -169,6 +170,13 @@ SpRadioGroupPresenter >> connectPresenters [
 	buttons do: [ :btn | btn whenChangedDo: block ]
 ]
 
+{ #category : 'private' }
+SpRadioGroupPresenter >> correctIndexToFirst [
+
+	index := 1.
+	whenIndexChangedDo ifNotNil: [ whenIndexChangedDo value: index ]
+]
+
 { #category : 'layout' }
 SpRadioGroupPresenter >> defaultLayout [
 
@@ -230,7 +238,7 @@ SpRadioGroupPresenter >> items: aCollection [
 	items := aCollection asOrderedCollection.
 	size = aCollection size
 		ifTrue: [ self updateLabels ]
-		ifFalse: [ self updateButtons; connectPresenters; updateCurrentLayout ].
+		ifFalse: [ self updateButtons; connectPresenters; updateCurrentLayout; correctIndexToFirst ].
 	self itemsChanged
 ]
 
@@ -260,6 +268,28 @@ SpRadioGroupPresenter >> multipleColumnLayout [
 		hBoxLayout add: vBoxLayout ].
 	end - size timesRepeat: [ vBoxLayout add: SpLabelPresenter new ].
 	^ hBoxLayout
+]
+
+{ #category : 'accessing - model' }
+SpRadioGroupPresenter >> removeItem: anObject [
+	"Remove the item from the collection of objects that are displayed as radio buttons"
+
+	| keepIndex |
+	keepIndex := anObject ~= self itemSelected.
+	items remove: anObject.
+	self updateButtons.
+	keepIndex
+		ifTrue: [
+			(buttons at: index) state: true.
+			self
+				connectPresenters;
+				updateCurrentLayout ]
+		ifFalse: [
+			self
+				connectPresenters;
+				updateCurrentLayout;
+				correctIndexToFirst ].
+	self itemsChanged
 ]
 
 { #category : 'accessing - model' }
