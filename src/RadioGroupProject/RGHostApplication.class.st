@@ -31,45 +31,44 @@ RGHostApplication class >> run [
 	self new open
 ]
 
+{ #category : 'private - helpers' }
+RGHostApplication >> buidAnswerFor: aRadioGroup [
+
+	^ String streamContents: [ :stream |
+		  stream
+			  nextPutAll: aRadioGroup title;
+			  nextPutAll: ': '.
+		  aRadioGroup itemSelected printOn: stream.
+		  stream cr ]
+]
+
+{ #category : 'private - helpers' }
+RGHostApplication >> buildLineWith: name and: number [
+
+	^ String streamContents: [ :stream |
+		  stream
+			  nextPutAll: output text;
+			  nextPutAll: name;
+			  print: number;
+			  cr ]
+]
+
 { #category : 'initialization' }
 RGHostApplication >> connectPresenters [
 
 	question1 whenIndexChangedDo: [ :index |
-		output text: (String streamContents: [ :stream |
-				 stream
-					 nextPutAll: output text;
-					 nextPutAll: 'first - ';
-					 print: index;
-					 cr ]) ].
+		output text: (self buildLineWith: 'first - ' and: index) ].
 	question2 whenIndexChangedDo: [ :index |
-		output text: (String streamContents: [ :stream |
-				 stream
-					 nextPutAll: output text;
-					 nextPutAll: 'second - ';
-					 print: index;
-					 cr ]) ].
+		output text: (self buildLineWith: 'second - ' and: index) ].
 	question3 whenIndexChangedDo: [ :index |
-		output text: (String streamContents: [ :stream |
-				 stream
-					 nextPutAll: output text;
-					 nextPutAll: 'third - ';
-					 print: index;
-					 cr ]) ].
+		output text: (self buildLineWith: 'third - ' and: index) ].
 	buttonCheck action: [ output text: (String streamContents: [ :stream |
 				 stream
 					 nextPutAll: output text;
-					 nextPutAll: question1 title;
-					 nextPutAll: ': '.
-				 question1 itemSelected printOn: stream.
-				 stream cr;
-					 nextPutAll: question2 title;
-					 nextPutAll: ': '.
-				 question2 itemSelected printOn: stream.
-				 stream cr;
-					 nextPutAll: question3 title;
-					 nextPutAll: ': '.
-				 question3 itemSelected printOn: stream.
-				 stream cr ] ) ].
+					 nextPutAll: '-----------------------'; cr;
+					 nextPutAll: (self buidAnswerFor: question1);
+					 nextPutAll: (self buidAnswerFor: question2);
+					 nextPutAll: (self buidAnswerFor: question3) ] ) ].
 	buttonClear action: [ output clearContent ].
 	buttonQuit action: [ self delete ]
 ]
@@ -112,7 +111,7 @@ RGHostApplication >> initializePresenters [
 		title: 'How many chapters are in the "Application Building with Spec 2.0" book?';
 		beTripleColumn.
 	question2
-		title: 'Check the first working example in the book:'.
+		title: 'Check the first working example in the book.'.
 	question3
 		title: 'What do you think about the book? It is ...';
 		beDoubleColumn.
