@@ -124,6 +124,7 @@ RGHostApplication >> initializePresenters [
 { #category : 'initialization' }
 RGHostApplication >> initializeWindow: aWindowPresenter [
 
+	super initializeWindow: aWindowPresenter.
 	aWindowPresenter
 		title: 'Three questions only';
 		initialExtent: 445 @ 445
