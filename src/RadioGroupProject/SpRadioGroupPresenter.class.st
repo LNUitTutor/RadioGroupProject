@@ -195,6 +195,13 @@ SpRadioGroupPresenter >> display: aBlock [
 	self updateLabels
 ]
 
+{ #category : 'api - customization' }
+SpRadioGroupPresenter >> hideTitle [
+	"hides the caption of the group of the buttons"
+
+	self title: String empty
+]
+
 { #category : 'accessing' }
 SpRadioGroupPresenter >> indexSelected [
 	"Get the index of the selected button"
